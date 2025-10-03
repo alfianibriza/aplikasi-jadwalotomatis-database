@@ -80,7 +80,7 @@
                 <h1 class="text-xl font-bold tracking-tight">AutoScheduler</h1>
             </div>
             <nav id="sidebar-nav" class="mt-6 space-y-2 flex-grow">
-                <a href="#panduan" class="sidebar-link active flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Panduan</a>
+                <a href="#dashboard" class="sidebar-link active flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>Dashboard</a>
                 <a href="#data" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>Master Data</a>
                 <a href="#jadwal" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>Buat Jadwal</a>
                 <a href="#pengaturan" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>Pengaturan</a>
@@ -100,7 +100,7 @@
     
     <!-- Mobile Bottom Nav -->
     <nav id="mobile-nav" class="md:hidden fixed bottom-0 left-0 right-0 glass-card border-t p-2 flex justify-around" style="border-color: var(--table-border);">
-        <a href="#panduan" class="sidebar-link active flex-1 flex flex-col items-center justify-center p-2 rounded-lg text-xs font-semibold">Panduan</a>
+        <a href="#dashboard" class="sidebar-link active flex-1 flex flex-col items-center justify-center p-2 rounded-lg text-xs font-semibold">Dashboard</a>
         <a href="#data" class="sidebar-link flex-1 flex flex-col items-center justify-center p-2 rounded-lg text-xs font-semibold">Data</a>
         <a href="#jadwal" class="sidebar-link flex-1 flex flex-col items-center justify-center p-2 rounded-lg text-xs font-semibold">Jadwal</a>
         <a href="#pengaturan" class="sidebar-link flex-1 flex flex-col items-center justify-center p-2 rounded-lg text-xs font-semibold">Pengaturan</a>
@@ -118,9 +118,9 @@
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
     const contentArea = document.getElementById('content-area');
-    const API_URL = 'api/api.php'; // Path ke file API Anda
+    const API_URL = '/penjadwalan/api/api.php'; // Path ke file API Anda
     
-    // --- TEMPLATES & INJECTION (Sama seperti sebelumnya) ---
+    // --- TEMPLATES & INJECTION ---
     const viewTemplates = {
         'view-jadwal': `
             <div class="flex flex-col sm:flex-row gap-3 mb-4">
@@ -156,46 +156,56 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="glass-card rounded-lg border-none overflow-hidden shadow-sm"><table class="w-full"><tbody id="alokasi-list"></tbody></table></div>
                 </div>
             </div>`,
-        'view-panduan': `
-            <h3 class="text-2xl font-semibold tracking-tight mb-4">Panduan Penggunaan</h3>
-            <div class="space-y-6 glass-card rounded-xl p-6">
-                <div>
-                    <h4 class="text-xl font-semibold mb-2">Selamat Datang di AutoScheduler!</h4>
-                    <p style="color: var(--text-muted-color);">Aplikasi ini dirancang untuk membantu Anda menyusun jadwal pelajaran secara otomatis dan efisien. Ikuti langkah-langkah di bawah ini untuk memulai.</p>
+        'view-dashboard': `
+            <h3 class="text-2xl font-semibold tracking-tight mb-4">Dashboard</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                <div class="lg:col-span-3">
+                    <div class="glass-card rounded-xl p-6 h-full">
+                        <h4 class="text-xl font-semibold mb-2">Panduan Penggunaan</h4>
+                        <p style="color: var(--text-muted-color);">Selamat datang! Ikuti langkah-langkah di bawah untuk memulai.</p>
+                        <div class="space-y-4 mt-4">
+                             <div class="flex gap-4">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">1</div>
+                                <div>
+                                    <h5 class="font-semibold">Isi Master Data</h5>
+                                    <p style="color: var(--text-muted-color);">Buka tab <strong>Master Data</strong>. Masukkan semua <strong>Data Kelas</strong>, <strong>Guru</strong>, dan <strong>Mata Pelajaran</strong>.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">2</div>
+                                <div>
+                                    <h5 class="font-semibold">Alokasikan Pelajaran</h5>
+                                    <p style="color: var(--text-muted-color);">Masih di tab Master Data, tentukan guru mana mengajar apa, di kelas mana, dan berapa sesi per minggunya.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">3</div>
+                                <div>
+                                    <h5 class="font-semibold">Buat Jadwal Otomatis</h5>
+                                    <p style="color: var(--text-muted-color);">Pindah ke tab <strong>Buat Jadwal</strong> dan klik tombol <strong>"Buat Jadwal Otomatis"</strong>.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">4</div>
+                                <div>
+                                    <h5 class="font-semibold">Sesuaikan & Ekspor</h5>
+                                    <p style="color: var(--text-muted-color);">Anda bisa <strong>klik-dan-tukar</strong> jadwal jika perlu. Setelah final, <strong>Export</strong> jadwal ke format CSV.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="space-y-4">
-                    <div class="flex gap-4">
-                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">1</div>
-                        <div>
-                            <h5 class="font-semibold">Isi Master Data</h5>
-                            <p style="color: var(--text-muted-color);">Buka tab <strong>Master Data</strong>. Masukkan semua data yang dibutuhkan: <strong>Data Kelas</strong>, <strong>Data Guru</strong>, dan <strong>Data Mata Pelajaran</strong>.</p>
-                        </div>
+                <div class="lg:col-span-2">
+                     <div class="glass-card rounded-xl p-6 h-full">
+                        <h4 class="text-xl font-semibold mb-2">Progres Pengaturan</h4>
+                        <ul id="progress-list" class="space-y-4 mt-4 text-sm font-medium">
+                            <li id="progress-kelas" class="flex items-center gap-3 transition-colors text-slate-300"><span class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-700 text-slate-400"></span><span>Isi Data Kelas</span></li>
+                            <li id="progress-guru" class="flex items-center gap-3 transition-colors text-slate-300"><span class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-700 text-slate-400"></span><span>Isi Data Guru</span></li>
+                            <li id="progress-mapel" class="flex items-center gap-3 transition-colors text-slate-300"><span class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-700 text-slate-400"></span><span>Isi Data Mata Pelajaran</span></li>
+                            <li id="progress-alokasi" class="flex items-center gap-3 transition-colors text-slate-300"><span class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-700 text-slate-400"></span><span>Buat Alokasi Pelajaran</span></li>
+                            <li id="progress-jadwal" class="flex items-center gap-3 transition-colors text-slate-300"><span class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-700 text-slate-400"></span><span>Buat Jadwal Otomatis</span></li>
+                        </ul>
                     </div>
-                    <div class="flex gap-4">
-                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">2</div>
-                        <div>
-                            <h5 class="font-semibold">Alokasikan Pelajaran</h5>
-                            <p style="color: var(--text-muted-color);">Masih di tab Master Data, buka bagian <strong>Alokasi Pelajaran & Guru</strong>. Tentukan guru mana mengajar mata pelajaran apa, di kelas mana, dan berapa total sesi per minggunya.</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-4">
-                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">3</div>
-                        <div>
-                            <h5 class="font-semibold">Buat Jadwal Otomatis</h5>
-                            <p style="color: var(--text-muted-color);">Pindah ke tab <strong>Buat Jadwal</strong>. Klik tombol <strong>"Buat Jadwal Otomatis"</strong>. Sistem akan menyusun jadwal untuk semua kelas secara acak dan memastikan tidak ada jadwal guru yang bentrok.</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-4">
-                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">4</div>
-                        <div>
-                            <h5 class="font-semibold">Sesuaikan & Ekspor</h5>
-                            <p style="color: var(--text-muted-color);">Jika ada jadwal yang kurang sesuai, Anda bisa mengubah posisinya dengan cara <strong>klik-dan-tukar</strong>. Setelah final, klik tombol <strong>"Export"</strong> untuk mengunduh jadwal dalam format CSV.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="border-t pt-4 mt-6 text-center text-sm" style="border-color: var(--table-border); color: var(--text-muted-color);">
-                    <p>Aplikasi ini masih dalam tahap <strong>BETA</strong>.</p>
-                    <p>Dikembangkan oleh <strong>Alfian Firdausi</strong>.</p>
                 </div>
             </div>`,
         'view-pengaturan': `
@@ -306,6 +316,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         if(exportBtn) exportBtn.disabled = Object.keys(schedules).length === 0;
     };
 
+    const updateDashboardProgress = () => {
+        const incompleteIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>`;
+        const completeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+
+        const setProgress = (elementId, isComplete) => {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            const iconContainer = el.querySelector('span:first-child');
+            if (isComplete) {
+                el.classList.add('text-cyan-300');
+                el.classList.remove('text-slate-300');
+                iconContainer.innerHTML = completeIcon;
+                iconContainer.classList.add('bg-cyan-500/20', 'text-cyan-300');
+                iconContainer.classList.remove('bg-slate-700', 'text-slate-400');
+            } else {
+                el.classList.remove('text-cyan-300');
+                el.classList.add('text-slate-300');
+                iconContainer.innerHTML = incompleteIcon;
+                iconContainer.classList.remove('bg-cyan-500/20', 'text-cyan-300');
+                iconContainer.classList.add('bg-slate-700', 'text-slate-400');
+            }
+        };
+
+        setProgress('progress-kelas', kelas.length > 0);
+        setProgress('progress-guru', guru.length > 0);
+        setProgress('progress-mapel', mataPelajaran.length > 0);
+        setProgress('progress-alokasi', alokasiPelajaran.length > 0);
+        setProgress('progress-jadwal', Object.keys(schedules).length > 0);
+    };
+
     const renderKelasList = () => {
         const list = document.getElementById('kelas-list');
         list.innerHTML = kelas.length === 0 ? `<tr><td class="p-4 text-center text-slate-400">Belum ada data kelas.</td></tr>` :
@@ -341,27 +381,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderMataPelajaranList();
         renderAlokasiList();
         updateButtonStates();
+        updateDashboardProgress();
     };
 
     const renderAllSchedules = () => {
         const container = document.getElementById('schedule-container');
         if (Object.keys(schedules).length === 0 || kelas.length === 0) {
-            container.innerHTML = `<p class="text-center text-slate-400 p-4">Buat jadwal untuk menampilkannya di sini.</p>`; return;
+            container.innerHTML = `<p class="text-center text-slate-400 p-4">Buat jadwal untuk menampilkannya di sini.</p>`;
+        } else {
+            container.innerHTML = kelas.map(k => {
+                const classSchedule = schedules[k.nama] || {};
+                const uniqueSessions = Array.from({ length: 7 }, (_, i) => `Sesi ${i + 1}`);
+                const tableBody = uniqueSessions.map(sesiKey => `
+                    <tr class="bg-transparent border-b" style="border-color: var(--table-border);">
+                        <td class="p-2 border-r font-mono text-xs text-center" style="border-color: var(--table-border); color: var(--text-muted-color);">${sesiKey}</td>
+                        ${daysOrder.map(day => {
+                            const mapelData = classSchedule[day]?.[sesiKey];
+                            const content = mapelData ? `<div class="schedule-item p-2 rounded-lg shadow-md border border-black/10" data-mapel-id="${mapelData.id}" data-guru-nama="${mapelData.guru}"><p class="font-semibold text-sm">${mapelData.nama}</p><p class="text-xs opacity-80">${mapelData.guru}</p></div>` : `<div class="schedule-item-empty"></div>`;
+                            return `<td class="p-1.5 border-r text-center align-middle" style="border-color: var(--table-border);" data-day="${day}" data-sesi="${sesiKey}">${content}</td>`;
+                        }).join('')}
+                    </tr>`).join('');
+                return `<div><h2 class="text-2xl font-bold mb-3 tracking-tight">${k.nama}</h2><div class="glass-card rounded-xl overflow-hidden shadow-lg"><table class="w-full text-sm text-left schedule-table" data-class-name="${k.nama}"><thead class="text-xs uppercase" style="background-color: var(--table-header-bg);"><tr class="border-b" style="border-color: var(--table-border);"><th class="p-2 border-r w-16 text-center" style="border-color: var(--table-border);">Sesi</th>${daysOrder.map(d => `<th class="p-2 border-r text-center" style="border-color: var(--table-border);">${d}</th>`).join('')}</tr></thead><tbody>${tableBody}</tbody></table></div></div>`;
+            }).join('');
         }
-        container.innerHTML = kelas.map(k => {
-            const classSchedule = schedules[k.nama] || {};
-            const uniqueSessions = Array.from({ length: 7 }, (_, i) => `Sesi ${i + 1}`);
-            const tableBody = uniqueSessions.map(sesiKey => `
-                <tr class="bg-transparent border-b" style="border-color: var(--table-border);">
-                    <td class="p-2 border-r font-mono text-xs text-center" style="border-color: var(--table-border); color: var(--text-muted-color);">${sesiKey}</td>
-                    ${daysOrder.map(day => {
-                        const mapelData = classSchedule[day]?.[sesiKey];
-                        const content = mapelData ? `<div class="schedule-item p-2 rounded-lg shadow-md border border-black/10" data-mapel-id="${mapelData.id}" data-guru-nama="${mapelData.guru}"><p class="font-semibold text-sm">${mapelData.nama}</p><p class="text-xs opacity-80">${mapelData.guru}</p></div>` : `<div class="schedule-item-empty"></div>`;
-                        return `<td class="p-1.5 border-r text-center align-middle" style="border-color: var(--table-border);" data-day="${day}" data-sesi="${sesiKey}">${content}</td>`;
-                    }).join('')}
-                </tr>`).join('');
-            return `<div><h2 class="text-2xl font-bold mb-3 tracking-tight">${k.nama}</h2><div class="glass-card rounded-xl overflow-hidden shadow-lg"><table class="w-full text-sm text-left schedule-table" data-class-name="${k.nama}"><thead class="text-xs uppercase" style="background-color: var(--table-header-bg);"><tr class="border-b" style="border-color: var(--table-border);"><th class="p-2 border-r w-16 text-center" style="border-color: var(--table-border);">Sesi</th>${daysOrder.map(d => `<th class="p-2 border-r text-center" style="border-color: var(--table-border);">${d}</th>`).join('')}</tr></thead><tbody>${tableBody}</tbody></table></div></div>`;
-        }).join('');
+        updateDashboardProgress();
     };
 
     // --- MODALS & FORMS ---
@@ -390,8 +433,6 @@ document.addEventListener('DOMContentLoaded', async () => {
              document.getElementById('alokasi-sesi').value = data ? data.sesi : '';
         } else {
             const name = modalId.split('-')[0];
-            // PERBAIKAN: Langsung gunakan objek 'data' yang dilewatkan dari fungsi editItem.
-            // Ini lebih sederhana dan menghindari masalah saat mencari data lagi.
             document.getElementById(`${name}-id`).value = data ? data.id : '';
             document.getElementById(`nama-${name}`).value = data ? data.nama : '';
         }
@@ -474,6 +515,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             switchView(link.getAttribute('href'));
+            window.location.hash = link.getAttribute('href');
         });
     });
 
@@ -717,7 +759,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.addEventListener('resize', () => { setCanvasSize(); init(); });
 
     // --- INITIALIZATION ---
-    switchView(window.location.hash || '#panduan');
+    switchView(window.location.hash || '#dashboard');
     await loadAllData();
     setCanvasSize();
     init();
