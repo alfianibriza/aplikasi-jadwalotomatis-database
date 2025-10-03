@@ -83,7 +83,7 @@
                 <a href="#dashboard" class="sidebar-link active flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>Dashboard</a>
                 <a href="#data" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>Master Data</a>
                 <a href="#jadwal" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>Buat Jadwal</a>
-                <a href="#pengaturan" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>Pengaturan</a>
+                <a href="#pengaturan" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>Pengaturan</a>
             </nav>
             <div class="mt-auto p-4 text-center text-xs" style="color: var(--text-muted-color);">
                 Aplikasi Beta <br> Dikembangkan oleh <strong>Alfian Firdausi</strong>
@@ -157,54 +157,45 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
             </div>`,
         'view-dashboard': `
-            <h3 class="text-2xl font-semibold tracking-tight mb-4">Dashboard</h3>
-            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                <div class="lg:col-span-3">
-                    <div class="glass-card rounded-xl p-6 h-full">
-                        <h4 class="text-xl font-semibold mb-2">Panduan Penggunaan</h4>
-                        <p style="color: var(--text-muted-color);">Selamat datang! Ikuti langkah-langkah di bawah untuk memulai.</p>
-                        <div class="space-y-4 mt-4">
-                             <div class="flex gap-4">
-                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">1</div>
-                                <div>
-                                    <h5 class="font-semibold">Isi Master Data</h5>
-                                    <p style="color: var(--text-muted-color);">Buka tab <strong>Master Data</strong>. Masukkan semua <strong>Data Kelas</strong>, <strong>Guru</strong>, dan <strong>Mata Pelajaran</strong>.</p>
-                                </div>
+            <div class="space-y-8">
+                <div class="glass-card rounded-xl p-6">
+                    <h4 class="text-xl font-semibold mb-2">Panduan Penggunaan</h4>
+                    <p style="color: var(--text-muted-color);">Selamat datang! Ikuti langkah-langkah di bawah untuk memulai.</p>
+                    <div class="space-y-4 mt-4">
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">1</div>
+                            <div>
+                                <h5 class="font-semibold">Isi Master Data</h5>
+                                <p style="color: var(--text-muted-color);">Buka tab <strong>Master Data</strong>. Masukkan semua <strong>Data Kelas</strong>, <strong>Guru</strong>, dan <strong>Mata Pelajaran</strong>.</p>
                             </div>
-                            <div class="flex gap-4">
-                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">2</div>
-                                <div>
-                                    <h5 class="font-semibold">Alokasikan Pelajaran</h5>
-                                    <p style="color: var(--text-muted-color);">Masih di tab Master Data, tentukan guru mana mengajar apa, di kelas mana, dan berapa sesi per minggunya.</p>
-                                </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">2</div>
+                            <div>
+                                <h5 class="font-semibold">Alokasikan Pelajaran</h5>
+                                <p style="color: var(--text-muted-color);">Masih di tab Master Data, tentukan guru mana mengajar apa, di kelas mana, dan berapa sesi per minggunya.</p>
                             </div>
-                            <div class="flex gap-4">
-                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">3</div>
-                                <div>
-                                    <h5 class="font-semibold">Buat Jadwal Otomatis</h5>
-                                    <p style="color: var(--text-muted-color);">Pindah ke tab <strong>Buat Jadwal</strong> dan klik tombol <strong>"Buat Jadwal Otomatis"</strong>.</p>
-                                </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">3</div>
+                            <div>
+                                <h5 class="font-semibold">Buat Jadwal Otomatis</h5>
+                                <p style="color: var(--text-muted-color);">Pindah ke tab <strong>Buat Jadwal</strong> dan klik tombol <strong>"Buat Jadwal Otomatis"</strong>.</p>
                             </div>
-                            <div class="flex gap-4">
-                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">4</div>
-                                <div>
-                                    <h5 class="font-semibold">Sesuaikan & Ekspor</h5>
-                                    <p style="color: var(--text-muted-color);">Anda bisa <strong>klik-dan-tukar</strong> jadwal jika perlu. Setelah final, <strong>Export</strong> jadwal ke format CSV.</p>
-                                </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">4</div>
+                            <div>
+                                <h5 class="font-semibold">Sesuaikan & Ekspor</h5>
+                                <p style="color: var(--text-muted-color);">Anda bisa <strong>klik-dan-tukar</strong> jadwal jika perlu. Setelah final, <strong>Export</strong> jadwal ke format CSV.</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="lg:col-span-2">
-                     <div class="glass-card rounded-xl p-6 h-full">
-                        <h4 class="text-xl font-semibold mb-2">Progres Pengaturan</h4>
-                        <ul id="progress-list" class="space-y-4 mt-4 text-sm font-medium">
-                            <li id="progress-kelas" class="flex items-center gap-3 transition-colors text-slate-300"><span class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-700 text-slate-400"></span><span>Isi Data Kelas</span></li>
-                            <li id="progress-guru" class="flex items-center gap-3 transition-colors text-slate-300"><span class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-700 text-slate-400"></span><span>Isi Data Guru</span></li>
-                            <li id="progress-mapel" class="flex items-center gap-3 transition-colors text-slate-300"><span class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-700 text-slate-400"></span><span>Isi Data Mata Pelajaran</span></li>
-                            <li id="progress-alokasi" class="flex items-center gap-3 transition-colors text-slate-300"><span class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-700 text-slate-400"></span><span>Buat Alokasi Pelajaran</span></li>
-                            <li id="progress-jadwal" class="flex items-center gap-3 transition-colors text-slate-300"><span class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-700 text-slate-400"></span><span>Buat Jadwal Otomatis</span></li>
-                        </ul>
+                <div>
+                    <h3 class="text-2xl font-semibold tracking-tight mb-4">Status Jadwal Kelas</h3>
+                    <div id="schedule-status-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Status cards will be injected here -->
                     </div>
                 </div>
             </div>`,
@@ -316,35 +307,44 @@ document.addEventListener('DOMContentLoaded', async () => {
         if(exportBtn) exportBtn.disabled = Object.keys(schedules).length === 0;
     };
 
-    const updateDashboardProgress = () => {
-        const incompleteIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>`;
-        const completeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+    const updateScheduleStatusCards = () => {
+        const container = document.getElementById('schedule-status-container');
+        if (!container) return;
 
-        const setProgress = (elementId, isComplete) => {
-            const el = document.getElementById(elementId);
-            if (!el) return;
-            const iconContainer = el.querySelector('span:first-child');
-            if (isComplete) {
-                el.classList.add('text-cyan-300');
-                el.classList.remove('text-slate-300');
-                iconContainer.innerHTML = completeIcon;
-                iconContainer.classList.add('bg-cyan-500/20', 'text-cyan-300');
-                iconContainer.classList.remove('bg-slate-700', 'text-slate-400');
-            } else {
-                el.classList.remove('text-cyan-300');
-                el.classList.add('text-slate-300');
-                iconContainer.innerHTML = incompleteIcon;
-                iconContainer.classList.remove('bg-cyan-500/20', 'text-cyan-300');
-                iconContainer.classList.add('bg-slate-700', 'text-slate-400');
+        if (kelas.length === 0) {
+            container.innerHTML = `<p class="text-slate-400 text-center col-span-full py-8">Belum ada data kelas untuk ditampilkan.</p>`;
+            return;
+        }
+
+        const totalSesiTersedia = 42; // 6 hari * 7 sesi
+        let cardsHtml = '';
+
+        kelas.forEach(k => {
+            let sesiTerisi = 0;
+            const classSchedule = schedules[k.nama] || {};
+            for (const day in classSchedule) {
+                sesiTerisi += Object.keys(classSchedule[day]).length;
             }
-        };
 
-        setProgress('progress-kelas', kelas.length > 0);
-        setProgress('progress-guru', guru.length > 0);
-        setProgress('progress-mapel', mataPelajaran.length > 0);
-        setProgress('progress-alokasi', alokasiPelajaran.length > 0);
-        setProgress('progress-jadwal', Object.keys(schedules).length > 0);
+            const persentase = totalSesiTersedia > 0 ? Math.round((sesiTerisi / totalSesiTersedia) * 100) : 0;
+
+            cardsHtml += `
+                <div class="glass-card rounded-xl p-4 border border-cyan-500/30">
+                    <div class="flex justify-between items-center mb-2">
+                        <h5 class="font-bold text-white">${k.nama}</h5>
+                        <span class="font-semibold text-sm text-cyan-300">${persentase}%</span>
+                    </div>
+                    <div class="w-full bg-slate-700 rounded-full h-2.5">
+                        <div class="bg-cyan-500 h-2.5 rounded-full transition-all duration-500" style="width: ${persentase}%"></div>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2">${sesiTerisi} dari ${totalSesiTersedia} sesi terisi.</p>
+                </div>
+            `;
+        });
+
+        container.innerHTML = cardsHtml;
     };
+
 
     const renderKelasList = () => {
         const list = document.getElementById('kelas-list');
@@ -381,7 +381,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderMataPelajaranList();
         renderAlokasiList();
         updateButtonStates();
-        updateDashboardProgress();
+        updateScheduleStatusCards();
     };
 
     const renderAllSchedules = () => {
@@ -404,7 +404,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return `<div><h2 class="text-2xl font-bold mb-3 tracking-tight">${k.nama}</h2><div class="glass-card rounded-xl overflow-hidden shadow-lg"><table class="w-full text-sm text-left schedule-table" data-class-name="${k.nama}"><thead class="text-xs uppercase" style="background-color: var(--table-header-bg);"><tr class="border-b" style="border-color: var(--table-border);"><th class="p-2 border-r w-16 text-center" style="border-color: var(--table-border);">Sesi</th>${daysOrder.map(d => `<th class="p-2 border-r text-center" style="border-color: var(--table-border);">${d}</th>`).join('')}</tr></thead><tbody>${tableBody}</tbody></table></div></div>`;
             }).join('');
         }
-        updateDashboardProgress();
+        updateScheduleStatusCards();
     };
 
     // --- MODALS & FORMS ---
