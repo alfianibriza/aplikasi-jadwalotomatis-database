@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Penjadwalan Otomatis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --sidebar-bg: rgba(15, 23, 42, 0.6);
+            --card-bg: rgba(15, 23, 42, 0.7);
+            --text-color: #f1f5f9;
+            --text-muted-color: #94a3b8;
+            --accent-color: #22d3ee; /* Cyan-400 */
+            --active-link-bg: rgba(34, 211, 238, 0.1);
+            --table-header-bg: rgba(255,255,255,0.05);
+            --table-border: rgba(255,255,255,0.1);
+            --schedule-item-bg: linear-gradient(135deg, #22d3ee, #67e8f9);
+            --schedule-item-text: #0f172a;
+            --modal-backdrop: rgba(0, 0, 0, 0.7);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+        }
+        
+        #tech-background {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .schedule-item { cursor: pointer; }
+        .schedule-item-empty { min-height: 60px; cursor: pointer; }
+
+        .selected-for-swap {
+            outline: 3px solid var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color);
+            transform: scale(1.05);
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .swap-valid {
+            outline: 2px solid #22c55e; /* green-500 */
+        }
+        .swap-conflict {
+            outline: 2px solid #ef4444; /* red-500 */
+            background-color: rgba(239, 68, 68, 0.1);
+            cursor: not-allowed !important;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="tech-background"></canvas>
+
+    <div class="flex h-screen p-2 md:p-4 gap-4">
+        <!-- Sidebar -->
+        <aside class="flex-shrink-0 w-64 p-2 glass-card rounded-2xl hidden md:flex flex-col">
+            <div class="flex items-center gap-3 p-4">
+                <div class="bg-cyan-500 p-2 rounded-lg shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight">AutoScheduler</h1>
+            </div>
+            <nav id="sidebar-nav" class="mt-6 space-y-2 flex-grow">
+                <a href="#panduan" class="sidebar-link active flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Panduan</a>
+                <a href="#data" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>Master Data</a>
+                <a href="#jadwal" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>Buat Jadwal</a>
+                <a href="#pengaturan" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>Pengaturan</a>
+            </nav>
+            <div class="mt-auto p-4 text-center text-xs" style="color: var(--text-muted-color);">
+                Aplikasi Beta <br> Dikembangkan oleh <strong>Alfian Firdausi</strong>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 glass-card rounded-2xl overflow-y-auto">
+            <div id="content-area" class="p-4 md:p-6">
+                <!-- Views will be injected here -->
+            </div>
+        </main>
+    </div>
+    
+    <!-- Mobile Bottom Nav -->
+    <nav id="mobile-nav" class="md:hidden fixed bottom-0 left-0 right-0 glass-card border-t p-2 flex justify-around" style="border-color: var(--table-border);">
+        <a href="#panduan" class="sidebar-link active flex-1 flex flex-col items-center justify-center p-2 rounded-lg text-xs font-semibold">Panduan</a>
+        <a href="#data" class="sidebar-link flex-1 flex flex-col items-center justify-center p-2 rounded-lg text-xs font-semibold">Data</a>
+        <a href="#jadwal" class="sidebar-link flex-1 flex flex-col items-center justify-center p-2 rounded-lg text-xs font-semibold">Jadwal</a>
+        <a href="#pengaturan" class="sidebar-link flex-1 flex flex-col items-center justify-center p-2 rounded-lg text-xs font-semibold">Pengaturan</a>
+    </nav>
+
+
+    <!-- Modals -->
+    <div id="kelas-modal" class="fixed inset-0 z-50 hidden items-center justify-center transition-opacity" style="background-color: var(--modal-backdrop);"><div class="glass-card rounded-lg shadow-xl w-11/12 max-w-sm p-6"><h3 class="text-lg font-bold mb-4">Data Kelas</h3><form id="kelas-form"></form></div></div>
+    <div id="guru-modal" class="fixed inset-0 z-50 hidden items-center justify-center transition-opacity" style="background-color: var(--modal-backdrop);"><div class="glass-card rounded-lg shadow-xl w-11/12 max-w-sm p-6"><h3 class="text-lg font-bold mb-4">Data Guru</h3><form id="guru-form"></form></div></div>
+    <div id="matapelajaran-modal" class="fixed inset-0 z-50 hidden items-center justify-center transition-opacity" style="background-color: var(--modal-backdrop);"><div class="glass-card rounded-lg shadow-xl w-11/12 max-w-sm p-6"><h3 class="text-lg font-bold mb-4">Data Mata Pelajaran</h3><form id="matapelajaran-form"></form></div></div>
+    <div id="alokasi-modal" class="fixed inset-0 z-50 hidden items-center justify-center transition-opacity" style="background-color: var(--modal-backdrop);"><div class="glass-card rounded-lg shadow-xl w-11/12 max-w-sm p-6"><h3 class="text-lg font-bold mb-4">Alokasi Pelajaran</h3><form id="alokasi-form"></form></div></div>
+    
+    <div id="toast" class="fixed bottom-20 md:bottom-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transition-all z-50 transform translate-y-2"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const contentArea = document.getElementById('content-area');
+    const API_URL = 'api/api.php'; // Path ke file API Anda
+    
+    // --- TEMPLATES & INJECTION (Sama seperti sebelumnya) ---
+    const viewTemplates = {
+        'view-jadwal': `
+            <div class="flex flex-col sm:flex-row gap-3 mb-4">
+                <button id="generate-all-schedules-btn" class="w-full sm:w-auto flex-grow bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2.5 px-5 rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+                    Buat Jadwal Otomatis
+                </button>
+                <button id="export-all-csv-btn" class="w-full sm:w-auto bg-sky-500 hover:bg-sky-600 text-white font-bold py-2.5 px-5 rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 11h8"/><path d="M8 16h8"/><path d="M11 8v8"/></svg>
+                    Export ke Excel / Google Sheet
+                </button>
+            </div>
+            <p class="text-sm text-cyan-200 mb-6 p-3 bg-cyan-500/10 rounded-lg border border-cyan-500/20">💡 **Tips:** Klik pada satu jadwal untuk memilih, lalu klik pada slot lain untuk menukar. Slot <span class="border-b-2 border-green-400">hijau</span> aman, slot <span class="border-b-2 border-red-400">merah</span> bentrok.</p>
+            <div id="schedule-container" class="space-y-10">
+                 <p class="text-center text-slate-400 p-4">Buat jadwal untuk menampilkannya di sini.</p>
+            </div>`,
+        'view-data': `
+            <div class="space-y-8">
+                <div>
+                    <div class="flex justify-between items-center mb-2"><h3 class="text-2xl font-semibold tracking-tight">Data Kelas</h3><button onclick="openModal('kelas-modal')" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-1.5 px-4 rounded-md shadow text-sm flex items-center gap-1.5 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Tambah</button></div>
+                    <div class="glass-card rounded-lg border-none overflow-hidden shadow-sm"><table class="w-full"><tbody id="kelas-list"></tbody></table></div>
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-2"><h3 class="text-2xl font-semibold tracking-tight">Data Guru</h3><button onclick="openModal('guru-modal')" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-1.5 px-4 rounded-md shadow text-sm flex items-center gap-1.5 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Tambah</button></div>
+                    <div class="glass-card rounded-lg border-none overflow-hidden shadow-sm"><table class="w-full"><tbody id="guru-list"></tbody></table></div>
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-2"><h3 class="text-2xl font-semibold tracking-tight">Data Mata Pelajaran</h3><button onclick="openModal('matapelajaran-modal')" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-1.5 px-4 rounded-md shadow text-sm flex items-center gap-1.5 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Tambah</button></div>
+                    <div class="glass-card rounded-lg border-none overflow-hidden shadow-sm"><table class="w-full"><tbody id="matapelajaran-list"></tbody></table></div>
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-2"><h3 class="text-2xl font-semibold tracking-tight">Alokasi Pelajaran & Guru</h3><button onclick="openModal('alokasi-modal')" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-1.5 px-4 rounded-md shadow text-sm flex items-center gap-1.5 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Tambah</button></div>
+                    <div class="glass-card rounded-lg border-none overflow-hidden shadow-sm"><table class="w-full"><tbody id="alokasi-list"></tbody></table></div>
+                </div>
+            </div>`,
+        'view-panduan': `
+            <h3 class="text-2xl font-semibold tracking-tight mb-4">Panduan Penggunaan</h3>
+            <div class="space-y-6 glass-card rounded-xl p-6">
+                <div>
+                    <h4 class="text-xl font-semibold mb-2">Selamat Datang di AutoScheduler!</h4>
+                    <p style="color: var(--text-muted-color);">Aplikasi ini dirancang untuk membantu Anda menyusun jadwal pelajaran secara otomatis dan efisien. Ikuti langkah-langkah di bawah ini untuk memulai.</p>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">1</div>
+                        <div>
+                            <h5 class="font-semibold">Isi Master Data</h5>
+                            <p style="color: var(--text-muted-color);">Buka tab <strong>Master Data</strong>. Masukkan semua data yang dibutuhkan: <strong>Data Kelas</strong>, <strong>Data Guru</strong>, dan <strong>Data Mata Pelajaran</strong>.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">2</div>
+                        <div>
+                            <h5 class="font-semibold">Alokasikan Pelajaran</h5>
+                            <p style="color: var(--text-muted-color);">Masih di tab Master Data, buka bagian <strong>Alokasi Pelajaran & Guru</strong>. Tentukan guru mana mengajar mata pelajaran apa, di kelas mana, dan berapa total sesi per minggunya.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">3</div>
+                        <div>
+                            <h5 class="font-semibold">Buat Jadwal Otomatis</h5>
+                            <p style="color: var(--text-muted-color);">Pindah ke tab <strong>Buat Jadwal</strong>. Klik tombol <strong>"Buat Jadwal Otomatis"</strong>. Sistem akan menyusun jadwal untuk semua kelas secara acak dan memastikan tidak ada jadwal guru yang bentrok.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-cyan-500 text-white flex items-center justify-center font-bold">4</div>
+                        <div>
+                            <h5 class="font-semibold">Sesuaikan & Ekspor</h5>
+                            <p style="color: var(--text-muted-color);">Jika ada jadwal yang kurang sesuai, Anda bisa mengubah posisinya dengan cara <strong>klik-dan-tukar</strong>. Setelah final, klik tombol <strong>"Export"</strong> untuk mengunduh jadwal dalam format CSV.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t pt-4 mt-6 text-center text-sm" style="border-color: var(--table-border); color: var(--text-muted-color);">
+                    <p>Aplikasi ini masih dalam tahap <strong>BETA</strong>.</p>
+                    <p>Dikembangkan oleh <strong>Alfian Firdausi</strong>.</p>
+                </div>
+            </div>`,
+        'view-pengaturan': `
+            <h3 class="text-2xl font-semibold tracking-tight mb-4">Pengaturan</h3>
+            <div class="space-y-6">
+               <div>
+                   <h4 class="text-xl font-semibold text-red-400 mb-2">Zona Berbahaya</h4>
+                   <div class="bg-red-500/10 border border-red-500/20 p-4 rounded-xl">
+                      <p class="text-sm text-red-300 mt-1 mb-3">Tindakan ini akan menghapus semua data (kelas, guru, mapel, alokasi, dan jadwal) secara permanen dari database.</p>
+                       <button id="delete-all-data-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                          Hapus Semua Data
+                      </button>
+                   </div>
+              </div>
+            </div>`
+    };
+    
+    const modalFormTemplates = {
+        'kelas-form': `<input type="hidden" id="kelas-id"><div class="mb-4"><label for="nama-kelas" class="block text-sm font-medium mb-1">Nama Kelas</label><input type="text" id="nama-kelas" class="w-full bg-slate-800/20 border-slate-600 rounded-md shadow-sm focus:ring-cyan-500 focus:border-cyan-500 text-slate-100 placeholder:text-slate-400" placeholder="Contoh: 10 IPA 1" required></div><div class="flex justify-end gap-2"><button type="button" onclick="closeModal('kelas-modal')" class="bg-slate-600 hover:bg-slate-500 text-slate-200 py-2 px-4 rounded-md transition-colors">Batal</button><button type="submit" class="bg-cyan-500 hover:bg-cyan-600 text-white py-2 px-4 rounded-md transition-colors">Simpan</button></div>`,
+        'guru-form': `<input type="hidden" id="guru-id"><div class="mb-4"><label for="nama-guru" class="block text-sm font-medium mb-1">Nama Guru</label><input type="text" id="nama-guru" class="w-full bg-slate-800/20 border-slate-600 rounded-md shadow-sm focus:ring-cyan-500 focus:border-cyan-500 text-slate-100 placeholder:text-slate-400" placeholder="Contoh: Budi Santoso" required></div><div class="flex justify-end gap-2"><button type="button" onclick="closeModal('guru-modal')" class="bg-slate-600 hover:bg-slate-500 text-slate-200 py-2 px-4 rounded-md transition-colors">Batal</button><button type="submit" class="bg-cyan-500 hover:bg-cyan-600 text-white py-2 px-4 rounded-md transition-colors">Simpan</button></div>`,
+        'matapelajaran-form': `<input type="hidden" id="matapelajaran-id"><div class="mb-4"><label for="nama-matapelajaran" class="block text-sm font-medium mb-1">Nama Mata Pelajaran</label><input type="text" id="nama-matapelajaran" class="w-full bg-slate-800/20 border-slate-600 rounded-md shadow-sm focus:ring-cyan-500 focus:border-cyan-500 text-slate-100 placeholder:text-slate-400" placeholder="Contoh: Matematika" required></div><div class="flex justify-end gap-2"><button type="button" onclick="closeModal('matapelajaran-modal')" class="bg-slate-600 hover:bg-slate-500 text-slate-200 py-2 px-4 rounded-md transition-colors">Batal</button><button type="submit" class="bg-cyan-500 hover:bg-cyan-600 text-white py-2 px-4 rounded-md transition-colors">Simpan</button></div>`,
+        'alokasi-form': `<input type="hidden" id="alokasi-id"><div class="space-y-4"><label class="block"><span class="text-sm font-medium">Mata Pelajaran</span><select id="alokasi-mapel" class="w-full mt-1 bg-slate-800/20 border-slate-600 rounded-md shadow-sm focus:ring-cyan-500 focus:border-cyan-500 text-slate-100" required></select></label><label class="block"><span class="text-sm font-medium">Guru</span><select id="alokasi-guru" class="w-full mt-1 bg-slate-800/20 border-slate-600 rounded-md shadow-sm focus:ring-cyan-500 focus:border-cyan-500 text-slate-100" required></select></label><label class="block"><span class="text-sm font-medium">Untuk Kelas</span><select id="alokasi-kelas" class="w-full mt-1 bg-slate-800/20 border-slate-600 rounded-md shadow-sm focus:ring-cyan-500 focus:border-cyan-500 text-slate-100" required></select></label><label class="block"><span class="text-sm font-medium">Jumlah Sesi per Minggu</span><input type="number" id="alokasi-sesi" class="w-full mt-1 bg-slate-800/20 border-slate-600 rounded-md shadow-sm focus:ring-cyan-500 focus:border-cyan-500 text-slate-100 placeholder:text-slate-400" placeholder="Contoh: 4" min="1" required></label></div><div class="flex justify-end gap-2 mt-6"><button type="button" onclick="closeModal('alokasi-modal')" class="bg-slate-600 hover:bg-slate-500 text-slate-200 py-2 px-4 rounded-md transition-colors">Batal</button><button type="submit" class="bg-cyan-500 hover:bg-cyan-600 text-white py-2 px-4 rounded-md transition-colors">Simpan</button></div>`
+    };
+
+    Object.keys(viewTemplates).forEach(key => {
+        const viewDiv = document.createElement('div');
+        viewDiv.id = key;
+        viewDiv.innerHTML = viewTemplates[key];
+        contentArea.appendChild(viewDiv);
+    });
+
+    for(const formId in modalFormTemplates) {
+        document.getElementById(formId).innerHTML = modalFormTemplates[formId];
+    }
+    
+    // --- STATE & CONSTANTS ---
+    let kelas = [];
+    let guru = [];
+    let mataPelajaran = [];
+    let alokasiPelajaran = [];
+    let schedules = {};
+    const daysOrder = ['Sabtu', 'Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis'];
+    const allSessions = Array.from({length: 6*7}, (_, i) => ({
+        hari: daysOrder[Math.floor(i/7)],
+        sesi: `Sesi ${i%7 + 1}`
+    }));
+
+    // --- API HELPER ---
+    const apiCall = async (action, body = null) => {
+        try {
+            const options = {
+                method: body ? 'POST' : 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                body: body ? JSON.stringify(body) : null
+            };
+            const response = await fetch(`${API_URL}?action=${action}`, options);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const result = await response.json();
+            if (!result.success) throw new Error(result.data || 'API call failed');
+            return result.data;
+        } catch (error) {
+            console.error(`Error during API call [${action}]:`, error);
+            showToast(`Error: ${error.message}`, true);
+            return null;
+        }
+    };
+    
+    // --- DATA LOADING & SAVING ---
+    const loadAllData = async () => {
+        const data = await apiCall('get_all_data');
+        if (data) {
+            kelas = data.kelas || [];
+            guru = data.guru || [];
+            mataPelajaran = data.mata_pelajaran || [];
+            alokasiPelajaran = data.alokasi || [];
+            schedules = data.schedules || {};
+            renderAllLists();
+            renderAllSchedules();
+            updateButtonStates();
+        }
+    };
+
+    const saveSchedulesToDB = async () => {
+        await apiCall('save_schedules', { schedules });
+    };
+
+    // --- FUNCTION DEFINITIONS (Rendering, etc) ---
+    const showToast = (message, isError = false) => {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = `fixed bottom-20 md:bottom-5 right-5 text-white py-2 px-5 rounded-lg shadow-xl opacity-0 transition-all z-50 transform translate-y-2 ${isError ? 'bg-red-500' : 'bg-emerald-500'}`;
+        setTimeout(() => {
+            toast.classList.remove('opacity-0', 'translate-y-2');
+            toast.classList.add('opacity-100', 'translate-y-0');
+        }, 100);
+        setTimeout(() => {
+            toast.classList.remove('opacity-100', 'translate-y-0');
+            toast.classList.add('opacity-0', 'translate-y-2');
+        }, 3000);
+    };
+
+    const updateButtonStates = () => {
+        const generateBtn = document.getElementById('generate-all-schedules-btn');
+        const exportBtn = document.getElementById('export-all-csv-btn');
+        const hasMasterData = kelas.length > 0 && alokasiPelajaran.length > 0;
+        if(generateBtn) generateBtn.disabled = !hasMasterData;
+        if(exportBtn) exportBtn.disabled = Object.keys(schedules).length === 0;
+    };
+
+    const renderKelasList = () => {
+        const list = document.getElementById('kelas-list');
+        list.innerHTML = kelas.length === 0 ? `<tr><td class="p-4 text-center text-slate-400">Belum ada data kelas.</td></tr>` :
+            kelas.map(k => `<tr class="border-b" style="border-color: var(--table-border);"><td class="p-3 font-medium">${k.nama}</td><td class="p-3 text-right"><button onclick="editItem('kelas', '${k.id}')" class="text-cyan-400 hover:text-cyan-200 font-semibold mr-3 p-1 text-sm">Edit</button><button onclick="deleteItem('kelas', '${k.id}')" class="text-red-400 hover:text-red-300 font-semibold p-1 text-sm">Hapus</button></td></tr>`).join('');
+    };
+    const renderGuruList = () => {
+        const list = document.getElementById('guru-list');
+        list.innerHTML = guru.length === 0 ? `<tr><td class="p-4 text-center text-slate-400">Belum ada data guru.</td></tr>` :
+            guru.map(g => `<tr class="border-b" style="border-color: var(--table-border);"><td class="p-3 font-medium">${g.nama}</td><td class="p-3 text-right"><button onclick="editItem('guru', '${g.id}')" class="text-cyan-400 hover:text-cyan-200 font-semibold mr-3 p-1 text-sm">Edit</button><button onclick="deleteItem('guru', '${g.id}')" class="text-red-400 hover:text-red-300 font-semibold p-1 text-sm">Hapus</button></td></tr>`).join('');
+    };
+    const renderMataPelajaranList = () => {
+        const list = document.getElementById('matapelajaran-list');
+        list.innerHTML = mataPelajaran.length === 0 ? `<tr><td class="p-4 text-center text-slate-400">Belum ada data mata pelajaran.</td></tr>` :
+            mataPelajaran.map(m => `<tr class="border-b" style="border-color: var(--table-border);"><td class="p-3 font-medium">${m.nama}</td><td class="p-3 text-right"><button onclick="editItem('matapelajaran', '${m.id}')" class="text-cyan-400 hover:text-cyan-200 font-semibold mr-3 p-1 text-sm">Edit</button><button onclick="deleteItem('matapelajaran', '${m.id}')" class="text-red-400 hover:text-red-300 font-semibold p-1 text-sm">Hapus</button></td></tr>`).join('');
+    };
+    const renderAlokasiList = () => {
+        const list = document.getElementById('alokasi-list');
+        if (alokasiPelajaran.length === 0) {
+            list.innerHTML = `<tr><td class="p-4 text-center text-slate-400">Belum ada data alokasi.</td></tr>`;
+            return;
+        }
+        list.innerHTML = alokasiPelajaran.map(a => {
+            const mapelName = a.nama_mapel || `<span class="text-red-500">N/A</span>`;
+            const guruName = a.nama_guru || `<span class="text-red-500">N/A</span>`;
+            const kelasName = a.nama_kelas || `<span class="text-red-500">N/A</span>`;
+            return `<tr class="border-b" style="border-color: var(--table-border);"><td class="p-3"><div class="font-medium">${mapelName} (${a.sesi} Sesi)</div><div class="text-sm" style="color: var(--text-muted-color);">${guruName} &mdash; <strong>${kelasName}</strong></div></td><td class="p-3 text-right"><button onclick="editItem('alokasi', '${a.id}')" class="text-cyan-400 hover:text-cyan-200 font-semibold mr-3 p-1 text-sm">Edit</button><button onclick="deleteItem('alokasi', '${a.id}')" class="text-red-400 hover:text-red-300 font-semibold p-1 text-sm">Hapus</button></td></tr>`;
+        }).join('');
+    };
+    
+    const renderAllLists = () => {
+        renderKelasList();
+        renderGuruList();
+        renderMataPelajaranList();
+        renderAlokasiList();
+        updateButtonStates();
+    };
+
+    const renderAllSchedules = () => {
+        const container = document.getElementById('schedule-container');
+        if (Object.keys(schedules).length === 0 || kelas.length === 0) {
+            container.innerHTML = `<p class="text-center text-slate-400 p-4">Buat jadwal untuk menampilkannya di sini.</p>`; return;
+        }
+        container.innerHTML = kelas.map(k => {
+            const classSchedule = schedules[k.nama] || {};
+            const uniqueSessions = Array.from({ length: 7 }, (_, i) => `Sesi ${i + 1}`);
+            const tableBody = uniqueSessions.map(sesiKey => `
+                <tr class="bg-transparent border-b" style="border-color: var(--table-border);">
+                    <td class="p-2 border-r font-mono text-xs text-center" style="border-color: var(--table-border); color: var(--text-muted-color);">${sesiKey}</td>
+                    ${daysOrder.map(day => {
+                        const mapelData = classSchedule[day]?.[sesiKey];
+                        const content = mapelData ? `<div class="schedule-item p-2 rounded-lg shadow-md border border-black/10" data-mapel-id="${mapelData.id}" data-guru-nama="${mapelData.guru}"><p class="font-semibold text-sm">${mapelData.nama}</p><p class="text-xs opacity-80">${mapelData.guru}</p></div>` : `<div class="schedule-item-empty"></div>`;
+                        return `<td class="p-1.5 border-r text-center align-middle" style="border-color: var(--table-border);" data-day="${day}" data-sesi="${sesiKey}">${content}</td>`;
+                    }).join('')}
+                </tr>`).join('');
+            return `<div><h2 class="text-2xl font-bold mb-3 tracking-tight">${k.nama}</h2><div class="glass-card rounded-xl overflow-hidden shadow-lg"><table class="w-full text-sm text-left schedule-table" data-class-name="${k.nama}"><thead class="text-xs uppercase" style="background-color: var(--table-header-bg);"><tr class="border-b" style="border-color: var(--table-border);"><th class="p-2 border-r w-16 text-center" style="border-color: var(--table-border);">Sesi</th>${daysOrder.map(d => `<th class="p-2 border-r text-center" style="border-color: var(--table-border);">${d}</th>`).join('')}</tr></thead><tbody>${tableBody}</tbody></table></div></div>`;
+        }).join('');
+    };
+
+    // --- MODALS & FORMS ---
+    window.openModal = (modalId, data = null) => {
+        const modal = document.getElementById(modalId);
+        const form = modal.querySelector('form');
+        form.reset();
+        
+        if (modalId === 'alokasi-modal') {
+             if(kelas.length === 0 || guru.length === 0 || mataPelajaran.length === 0) {
+                showToast('Harap isi Data Kelas, Guru, dan Mata Pelajaran dahulu!', true); return;
+             }
+             const setupSelect = (id, options, defaultText) => {
+                const select = document.getElementById(id);
+                select.innerHTML = `<option value="">-- ${defaultText} --</option>`;
+                options.forEach(opt => select.innerHTML += `<option value="${opt.id}">${opt.nama}</option>`);
+             };
+             setupSelect('alokasi-mapel', mataPelajaran, 'Pilih Mapel');
+             setupSelect('alokasi-guru', guru, 'Pilih Guru');
+             setupSelect('alokasi-kelas', kelas, 'Pilih Kelas');
+
+             document.getElementById('alokasi-id').value = data ? data.id : '';
+             document.getElementById('alokasi-mapel').value = data ? data.id_mapel : '';
+             document.getElementById('alokasi-guru').value = data ? data.id_guru : '';
+             document.getElementById('alokasi-kelas').value = data ? data.id_kelas : '';
+             document.getElementById('alokasi-sesi').value = data ? data.sesi : '';
+        } else {
+            const name = modalId.split('-')[0];
+            // PERBAIKAN: Langsung gunakan objek 'data' yang dilewatkan dari fungsi editItem.
+            // Ini lebih sederhana dan menghindari masalah saat mencari data lagi.
+            document.getElementById(`${name}-id`).value = data ? data.id : '';
+            document.getElementById(`nama-${name}`).value = data ? data.nama : '';
+        }
+        
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    };
+
+    window.closeModal = (modalId) => document.getElementById(modalId).classList.add('hidden');
+
+    const handleFormSubmit = async (formId, tableName, name) => {
+        document.getElementById(formId).addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById(`${name}-id`).value;
+            let entryData = {};
+            if(name === 'alokasi') {
+                entryData = { 
+                    id_mapel: document.getElementById('alokasi-mapel').value, 
+                    id_guru: document.getElementById('alokasi-guru').value, 
+                    id_kelas: document.getElementById('alokasi-kelas').value, 
+                    sesi: parseInt(document.getElementById('alokasi-sesi').value) 
+                };
+            } else {
+                entryData = { nama: document.getElementById(`nama-${name}`).value.trim() };
+            }
+            
+            const result = await apiCall('save_item', { table: tableName, id: id, data: entryData });
+            if (result) {
+                showToast(`Data ${name} berhasil disimpan!`);
+                closeModal(`${name}-modal`);
+                await loadAllData();
+            }
+        });
+    };
+
+    window.editItem = (name, id) => {
+        let dataArray;
+        switch(name) {
+            case 'kelas': dataArray = kelas; break;
+            case 'guru': dataArray = guru; break;
+            case 'matapelajaran': dataArray = mataPelajaran; break;
+            case 'alokasi': dataArray = alokasiPelajaran; break;
+        }
+        const item = dataArray.find(i => i.id == id);
+        openModal(`${name}-modal`, item);
+    };
+
+    window.deleteItem = async (name, id) => {
+        const tableName = name === 'matapelajaran' ? 'mata_pelajaran' : name;
+        if(confirm(`Apakah Anda yakin ingin menghapus data ini?`)){
+            const result = await apiCall('delete_item', { table: tableName, id: id });
+            if (result) {
+                showToast(`Data ${name} berhasil dihapus!`);
+                await loadAllData();
+            }
+        }
+    };
+    
+    handleFormSubmit('kelas-form', 'kelas', 'kelas');
+    handleFormSubmit('guru-form', 'guru', 'guru');
+    handleFormSubmit('matapelajaran-form', 'mata_pelajaran', 'matapelajaran');
+    handleFormSubmit('alokasi-form', 'alokasi', 'alokasi');
+
+    // --- Navigation ---
+    const sidebarLinks = document.querySelectorAll('.sidebar-link');
+    const switchView = (hash) => {
+        const targetId = hash.substring(1);
+        document.querySelectorAll('#content-area > div').forEach(div => {
+            div.style.display = div.id === `view-${targetId}` ? 'block' : 'none';
+        });
+        sidebarLinks.forEach(link => {
+            const isActive = link.getAttribute('href') === hash;
+            link.classList.toggle('active', isActive);
+            link.style.backgroundColor = isActive ? 'var(--active-link-bg)' : 'transparent';
+            link.style.color = isActive ? 'var(--accent-color)' : 'var(--text-color)';
+        });
+    };
+    
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            switchView(link.getAttribute('href'));
+        });
+    });
+
+    // --- Schedule Generation & Actions ---
+    document.getElementById('generate-all-schedules-btn').addEventListener('click', async () => {
+        if (kelas.length === 0 || alokasiPelajaran.length === 0) {
+            showToast('Data Kelas dan Alokasi Pelajaran harus diisi!', true); return;
+        }
+        schedules = {};
+        const teacherSchedule = {};
+        let unplacedCount = 0;
+        const shuffledKelas = [...kelas].sort(() => Math.random() - 0.5);
+        for (const k of shuffledKelas) {
+            let subjectBag = [];
+            alokasiPelajaran.filter(a => a.id_kelas == k.id).forEach(alokasi => {
+                for (let i = 0; i < alokasi.sesi; i++) subjectBag.push(alokasi);
+            });
+            subjectBag.sort(() => Math.random() - 0.5);
+            const availableSlots = [...allSessions].sort(() => Math.random() - 0.5);
+            if (subjectBag.length > availableSlots.length) {
+                showToast(`Error: Sesi mapel di kelas ${k.nama} (${subjectBag.length}) > slot tersedia (${availableSlots.length})!`, true); continue;
+            }
+            const newClassSchedule = {};
+            availableSlots.forEach(slot => {
+                if (subjectBag.length === 0) return;
+                let placed = false;
+                for (let i = 0; i < subjectBag.length && !placed; i++) {
+                    const alokasi = subjectBag[i];
+                    const guruInfo = guru.find(g => g.id == alokasi.id_guru);
+                    if (teacherSchedule[guruInfo.nama]?.[slot.hari]?.includes(slot.sesi)) continue;
+                    
+                    const mapelInfo = mataPelajaran.find(m => m.id == alokasi.id_mapel);
+                    if (!newClassSchedule[slot.hari]) newClassSchedule[slot.hari] = {};
+                    newClassSchedule[slot.hari][slot.sesi] = { id: alokasi.id, nama: mapelInfo.nama, guru: guruInfo.nama };
+                    
+                    if (!teacherSchedule[guruInfo.nama]) teacherSchedule[guruInfo.nama] = {};
+                    if (!teacherSchedule[guruInfo.nama][slot.hari]) teacherSchedule[guruInfo.nama][slot.hari] = [];
+                    teacherSchedule[guruInfo.nama][slot.hari].push(slot.sesi);
+                    
+                    subjectBag.splice(i, 1);
+                    placed = true;
+                }
+            });
+            unplacedCount += subjectBag.length;
+            schedules[k.nama] = newClassSchedule;
+        }
+        
+        await saveSchedulesToDB();
+        renderAllSchedules();
+        updateButtonStates();
+        showToast(unplacedCount > 0 ? `Jadwal selesai. ${unplacedCount} sesi tidak dapat ditempatkan.` : `Jadwal berhasil dibuat dan disimpan!`, unplacedCount > 0);
+    });
+
+    document.getElementById('export-all-csv-btn').addEventListener('click', () => {
+        if (Object.keys(schedules).length === 0) {
+            showToast('Belum ada jadwal untuk diexport!', true); return;
+        }
+        const data = [];
+        const header = ['Kelas', 'Sesi', ...daysOrder];
+        data.push(header);
+        const uniqueSessions = Array.from({ length: 7 }, (_, i) => `Sesi ${i + 1}`);
+        kelas.forEach(k => {
+            const classSchedule = schedules[k.nama] || {};
+            uniqueSessions.forEach(sesiKey => {
+                const rowData = [k.nama, sesiKey];
+                daysOrder.forEach(day => {
+                    const mapelData = classSchedule[day]?.[sesiKey];
+                    rowData.push(mapelData ? `${mapelData.nama} (${mapelData.guru})` : '');
+                });
+                data.push(rowData);
+            });
+        });
+        const csv = Papa.unparse(data);
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' }));
+        link.download = `jadwal_seluruh_kelas.csv`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        showToast('Semua jadwal berhasil diexport!');
+    });
+
+    document.getElementById('delete-all-data-btn').addEventListener('click', async () => {
+        if(confirm('Apakah Anda yakin ingin menghapus semua data dari database? Tindakan ini tidak dapat dibatalkan.')){
+            const result = await apiCall('delete_all_data');
+            if (result) {
+                showToast('Semua data berhasil dihapus!', true);
+                await loadAllData();
+            }
+        }
+    });
+
+    // --- Click to Swap (needs adaptation after schedules are saved) ---
+    const initializeClickToSwap = () => {
+        let firstSelection = null;
+        const scheduleContainer = document.getElementById('schedule-container');
+
+        scheduleContainer.addEventListener('click', async e => {
+            const targetCell = e.target.closest('td[data-day]');
+            
+            const clearHighlights = () => {
+                if (firstSelection) {
+                    firstSelection.element.classList.remove('selected-for-swap');
+                }
+                document.querySelectorAll('.swap-valid, .swap-conflict').forEach(cell => {
+                    cell.classList.remove('swap-valid', 'swap-conflict');
+                });
+                firstSelection = null;
+            };
+
+            if (!targetCell) {
+                clearHighlights();
+                return;
+            }
+
+            const className = targetCell.closest('.schedule-table').dataset.className;
+            const day = targetCell.dataset.day;
+            const sesi = targetCell.dataset.sesi;
+            const scheduleItem = targetCell.querySelector('.schedule-item');
+            const elementToSelect = scheduleItem || targetCell;
+
+            if (!firstSelection) {
+                // FIRST CLICK
+                firstSelection = { element: elementToSelect, className, day, sesi };
+                elementToSelect.classList.add('selected-for-swap');
+                
+                const sourceData = schedules[firstSelection.className]?.[firstSelection.day]?.[firstSelection.sesi];
+                if (!sourceData) return;
+
+                document.querySelectorAll('td[data-day]').forEach(cell => {
+                    if (cell === targetCell) return;
+                    const targetClassName = cell.closest('.schedule-table').dataset.className;
+                    const targetDay = cell.dataset.day;
+                    const targetSesi = cell.dataset.sesi;
+                    const targetData = schedules[targetClassName]?.[targetDay]?.[targetSesi];
+
+                    const checkConflict = (data, day, sesi, currentClassName) => {
+                        if (!data) return false;
+                        for (const cn in schedules) {
+                            if (cn === currentClassName) continue;
+                            if (schedules[cn]?.[day]?.[sesi]?.guru === data.guru) return true;
+                        }
+                        return false;
+                    };
+
+                    if (checkConflict(sourceData, targetDay, targetSesi, firstSelection.className) ||
+                        checkConflict(targetData, firstSelection.day, firstSelection.sesi, targetClassName)) {
+                        cell.classList.add('swap-conflict');
+                    } else {
+                        cell.classList.add('swap-valid');
+                    }
+                });
+
+            } else {
+                // SECOND CLICK
+                if (firstSelection.element === elementToSelect) {
+                    clearHighlights(); return;
+                }
+                if (targetCell.classList.contains('swap-conflict')) {
+                    showToast('Tidak bisa menukar, jadwal guru bentrok!', true);
+                    clearHighlights(); return;
+                }
+
+                const source = firstSelection;
+                const target = { className, day, sesi };
+
+                const sourceData = schedules[source.className]?.[source.day]?.[source.sesi];
+                const targetData = schedules[target.className]?.[target.day]?.[target.sesi];
+
+                if (!schedules[source.className]) schedules[source.className] = {};
+                if (!schedules[source.className][source.day]) schedules[source.className][source.day] = {};
+                if (!schedules[target.className]) schedules[target.className] = {};
+                if (!schedules[target.className][target.day]) schedules[target.className][target.day] = {};
+
+                schedules[source.className][source.day][source.sesi] = targetData;
+                schedules[target.className][target.day][target.sesi] = sourceData;
+                
+                if (!targetData) delete schedules[source.className][source.day][source.sesi];
+                if (Object.keys(schedules[source.className][source.day]).length === 0) delete schedules[source.className][source.day];
+                if (!sourceData) delete schedules[target.className][target.day][target.sesi];
+                if (schedules[target.className][target.day] && Object.keys(schedules[target.className][target.day]).length === 0) delete schedules[target.className][target.day];
+
+                await saveSchedulesToDB();
+                renderAllSchedules();
+                showToast("Jadwal berhasil ditukar & disimpan!");
+                clearHighlights();
+            }
+        });
+    };
+
+    // --- CANVAS BACKGROUND LOGIC (Sama seperti sebelumnya) ---
+    const canvas = document.getElementById('tech-background');
+    const ctx = canvas.getContext('2d');
+    let particlesArray;
+
+    const setCanvasSize = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    };
+
+    class Particle {
+        constructor(x, y, directionX, directionY, size, color) { this.x = x; this.y = y; this.directionX = directionX; this.directionY = directionY; this.size = size; this.color = color; }
+        draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false); ctx.fillStyle = this.color; ctx.fill(); }
+        update() { if (this.x > canvas.width || this.x < 0) this.directionX = -this.directionX; if (this.y > canvas.height || this.y < 0) this.directionY = -this.directionY; this.x += this.directionX; this.y += this.directionY; this.draw(); }
+    }
+
+    const init = () => {
+        particlesArray = [];
+        let numberOfParticles = (canvas.height * canvas.width) / 9000;
+        for (let i = 0; i < numberOfParticles; i++) {
+            let size = (Math.random() * 2) + 1;
+            let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
+            let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+            let directionX = (Math.random() * .4) - .2;
+            let directionY = (Math.random() * .4) - .2;
+            let color = 'rgba(207, 250, 254, 0.5)';
+            particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+        }
+    };
+
+    const connect = () => {
+        let opacityValue = 1;
+        for (let a = 0; a < particlesArray.length; a++) {
+            for (let b = a; b < particlesArray.length; b++) {
+                let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x)) + ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
+                if (distance < (canvas.width/7) * (canvas.height/7)) {
+                    opacityValue = 1 - (distance/20000);
+                    let color = 'rgba(207, 250, 254, ' + opacityValue + ')';
+                    ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(particlesArray[a].x, particlesArray[a].y); ctx.lineTo(particlesArray[b].x, particlesArray[b].y); ctx.stroke();
+                }
+            }
+        }
+    };
+
+    const animate = () => {
+        requestAnimationFrame(animate);
+        ctx.clearRect(0, 0, innerWidth, innerHeight);
+        for (let i = 0; i < particlesArray.length; i++) particlesArray[i].update();
+        connect();
+    };
+    
+    window.addEventListener('resize', () => { setCanvasSize(); init(); });
+
+    // --- INITIALIZATION ---
+    switchView(window.location.hash || '#panduan');
+    await loadAllData();
+    setCanvasSize();
+    init();
+    animate();
+    initializeClickToSwap();
+});
+</script>
+
+</body>
+</html>
+
